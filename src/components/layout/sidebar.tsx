@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/cn';
 import { useMode } from '@/stores/mode-store';
+import { useLocale } from '@/stores/locale-store';
 import { logoutAction } from '@/app/actions';
 import {
   Sun,
@@ -100,6 +101,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { mode, toggleMode, isQuick } = useMode();
+  const { tx } = useLocale();
 
   return (
     <aside className="fixed left-0 top-0 z-30 flex h-screen w-sidebar flex-col border-r border-surface-3 bg-surface-0">
@@ -119,7 +121,7 @@ export function Sidebar() {
           <div key={gi} className={cn(gi > 0 && 'mt-4')}>
             {group.label && (
               <div className="mb-1 px-3 text-2xs font-semibold uppercase tracking-wider text-text-muted">
-                {group.label}
+                {tx(group.label)}
               </div>
             )}
             {group.items.map((item) => {
@@ -135,7 +137,7 @@ export function Sidebar() {
                   )}
                 >
                   {item.icon}
-                  <span>{item.label}</span>
+                  <span>{tx(item.label)}</span>
                   {item.badge !== undefined && item.badge > 0 && (
                     <span className="ml-auto badge bg-brand-100 text-brand-700">
                       {item.badge}
@@ -159,7 +161,7 @@ export function Sidebar() {
         >
           {isQuick ? <Zap size={18} className="text-brand-500" /> : <Moon size={18} className="text-brand-500" />}
           <span className="text-text-secondary">
-            {isQuick ? 'Quick Mode' : 'Deep Mode'}
+            {tx(isQuick ? 'Quick Mode' : 'Deep Mode')}
           </span>
           <span
             className={cn(
@@ -184,7 +186,7 @@ export function Sidebar() {
           className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-text-muted transition-colors hover:bg-surface-2 hover:text-text-secondary"
         >
           <LogOut size={18} />
-          <span>Log out</span>
+          <span>{tx('Log out')}</span>
         </button>
       </div>
     </aside>

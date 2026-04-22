@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { toggleHabitAction } from '@/app/actions';
 import { cn } from '@/lib/cn';
 import { Flame } from 'lucide-react';
+import { useLocale } from '@/stores/locale-store';
 
 interface Habit {
   id: string;
@@ -26,10 +27,11 @@ interface HabitChecklistProps {
 }
 
 export function HabitChecklist({ habits, completions, date }: HabitChecklistProps) {
+  const { tx } = useLocale();
   const completedIds = new Set(completions.map(c => c.habitId));
 
   if (habits.length === 0) {
-    return <p className="py-4 text-center text-sm text-text-muted">No active habits</p>;
+    return <p className="py-4 text-center text-sm text-text-muted">{tx('No active habits')}</p>;
   }
 
   return (

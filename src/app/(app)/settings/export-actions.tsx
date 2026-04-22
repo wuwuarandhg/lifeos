@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { FileJson, Download, Loader2 } from 'lucide-react';
+import { useLocale } from '@/stores/locale-store';
 
 export function ExportActions() {
   const [jsonLoading, setJsonLoading] = useState(false);
   const [dbLoading, setDbLoading] = useState(false);
+  const { locale } = useLocale();
 
   const handleJsonExport = async () => {
     setJsonLoading(true);
@@ -49,7 +51,7 @@ export function ExportActions() {
         ) : (
           <FileJson className="h-4 w-4" />
         )}
-        {jsonLoading ? 'Exporting…' : 'Export JSON'}
+        {jsonLoading ? (locale === 'zh-CN' ? '导出中…' : 'Exporting…') : (locale === 'zh-CN' ? '导出 JSON' : 'Export JSON')}
       </button>
 
       <button
@@ -62,7 +64,7 @@ export function ExportActions() {
         ) : (
           <Download className="h-4 w-4" />
         )}
-        {dbLoading ? 'Preparing…' : 'Download Database'}
+        {dbLoading ? (locale === 'zh-CN' ? '准备中…' : 'Preparing…') : (locale === 'zh-CN' ? '下载数据库' : 'Download Database')}
       </button>
     </div>
   );

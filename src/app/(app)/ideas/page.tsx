@@ -3,8 +3,12 @@ import { getAllIdeas } from '@/server/services/ideas';
 import { CreateIdeaButton } from '@/components/ideas/create-idea-button';
 import { formatDate } from '@/lib/utils';
 import { Lightbulb } from 'lucide-react';
+import { buildPageMetadata, getCurrentLocale } from '@/lib/locale-server';
+import { translateText } from '@/lib/i18n';
 
-export const metadata = { title: 'Ideas — lifeOS' };
+export async function generateMetadata() {
+  return buildPageMetadata('Ideas');
+}
 export const dynamic = 'force-dynamic';
 
 const STAGE_EMOJI: Record<string, string> = {
@@ -23,22 +27,24 @@ const STAGE_COLORS: Record<string, string> = {
   archived: 'bg-surface-2 text-text-muted',
 };
 
-export default function IdeasPage() {
+export default async function IdeasPage() {
+  const locale = await getCurrentLocale();
+  const tx = (text: string) => translateText(text, locale);
   const allIdeas = getAllIdeas();
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-text-primary">Ideas</h1>
+        <h1 className="text-2xl font-semibold text-text-primary">{tx('Ideas')}</h1>
         <CreateIdeaButton />
       </div>
 
       {allIdeas.length === 0 ? (
         <div className="card py-12 text-center">
           <Lightbulb size={32} className="mx-auto text-text-muted mb-2" />
-          <p className="text-sm text-text-secondary">No ideas yet</p>
+          <p className="text-sm text-text-secondary">{tx('No ideas yet')}</p>
           <p className="text-2xs text-text-muted mt-1">
-            Capture your first idea — seeds grow into projects.
+            {tx('Capture your first idea — seeds grow into projects.')}
           </p>
         </div>
       ) : (
@@ -50,7 +56,7 @@ export default function IdeasPage() {
                   <h3 className="text-sm font-medium text-text-primary truncate flex-1">{idea.title}</h3>
                   {idea.stage && (
                     <span className={`badge text-2xs shrink-0 ${STAGE_COLORS[idea.stage] ?? 'bg-surface-2 text-text-muted'}`}>
-                      {STAGE_EMOJI[idea.stage] ?? ''} {idea.stage}
+                      {STAGE_EMOJI[idea.stage] ?? ''} {tx(idea.stage)}
                     </span>
                   )}
                 </div>
@@ -66,7 +72,7 @@ export default function IdeasPage() {
                     </span>
                   )}
                   <span className="text-2xs text-text-muted">
-                    {formatDate(idea.updatedAt)}
+                    {formatDate(idea.updatedAt, locale)}
                   </span>
                 </div>
               </div>

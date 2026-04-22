@@ -27,6 +27,12 @@ import {
 } from '@/lib/offline-capture';
 import { formatISODate } from '@/lib/utils';
 import type { CaptureParseResult } from '@/lib/types';
+import { useLocale } from '@/stores/locale-store';
+import {
+  formatQueuedCount,
+  formatQueuedPrimaryLabel,
+  translateText,
+} from '@/lib/i18n';
 
 const TYPE_LABELS: Record<CaptureParseResult['suggestedType'], string> = {
   task: 'Task',
@@ -39,6 +45,7 @@ const TYPE_LABELS: Record<CaptureParseResult['suggestedType'], string> = {
 };
 
 export function QuickCapture() {
+  const { locale, tx } = useLocale();
   const [text, setText] = useState('');
   const [isExpanded, setIsExpanded] = useState(false);
   const [preview, setPreview] = useState<CaptureParseResult | null>(null);
@@ -184,11 +191,11 @@ export function QuickCapture() {
 
   const primaryLabel = !isOnline
     ? preview?.directCreateSupported
-      ? `Queue ${TYPE_LABELS[preview.suggestedType]}`
-      : 'Queue for Inbox'
+      ? formatQueuedPrimaryLabel(locale, tx(TYPE_LABELS[preview.suggestedType]), true, true)
+      : tx('Queue for Inbox')
     : preview?.directCreateSupported
-      ? `Create ${TYPE_LABELS[preview.suggestedType]}`
-      : 'Send to Inbox';
+      ? formatQueuedPrimaryLabel(locale, tx(TYPE_LABELS[preview.suggestedType]), false, true)
+      : tx('Send to Inbox');
 
   return (
     <div
@@ -209,7 +216,7 @@ export function QuickCapture() {
             if (!text.trim()) setIsExpanded(false);
           }}
           onKeyDown={handleKeyDown}
-          placeholder="Capture anything... task, note, idea, journal, metric, or person"
+          placeholder={tx('Capture anything... task, note, idea, journal, metric, or person')}
           className="capture-bar pl-9 pr-10"
           disabled={isPending}
         />
@@ -233,18 +240,18 @@ export function QuickCapture() {
             {!isOnline ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-amber-700">
                 <CloudOff size={11} />
-                Offline capture mode
+                {tx('Offline capture mode')}
               </span>
             ) : null}
             {queuedCount > 0 ? (
               <span className="rounded-full bg-brand-100 px-2 py-0.5 text-brand-700">
-                {queuedCount} queued for sync
+                {formatQueuedCount(locale, queuedCount)}
               </span>
             ) : null}
             {isSyncingQueue ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-0.5 text-text-muted">
                 <RefreshCw size={11} className="animate-spin" />
-                Syncing queue
+                {tx('Syncing queue')}
               </span>
             ) : null}
           </div>
@@ -255,7 +262,7 @@ export function QuickCapture() {
               onClick={() => void syncQueuedCaptures()}
               className="text-2xs font-medium text-brand-600 transition-colors hover:text-brand-700"
             >
-              Sync now
+              {tx('Sync now')}
             </button>
           ) : null}
         </div>
@@ -278,7 +285,7 @@ export function QuickCapture() {
               {isPreviewing ? (
                 <div className="flex items-center gap-2 text-xs text-text-muted">
                   <Loader2 size={14} className="animate-spin" />
-                  Parsing capture…
+                  {tx('Parsing capture…')}
                 </div>
               ) : error ? (
                 <div className="flex items-center gap-2 text-xs text-status-danger">
@@ -292,7 +299,7 @@ export function QuickCapture() {
                       <div className="flex items-center gap-2">
                         <CaptureIcon type={preview.suggestedType} />
                         <span className="text-xs font-medium text-text-primary">
-                          {TYPE_LABELS[preview.suggestedType]}
+                          {tx(TYPE_LABELS[preview.suggestedType])}
                         </span>
                         <span className="rounded-full bg-surface-2 px-2 py-0.5 text-2xs text-text-muted">
                           {Math.round(preview.confidence * 100)}%
@@ -318,10 +325,10 @@ export function QuickCapture() {
                       )}
                     >
                       {!isOnline
-                        ? 'Queue offline'
+                        ? tx('Queue offline')
                         : preview.directCreateSupported
-                          ? 'Direct create'
-                          : 'Inbox'}
+                          ? tx('Direct create')
+                          : tx('Inbox')}
                     </span>
                   </div>
 
@@ -329,10 +336,10 @@ export function QuickCapture() {
                     {preview.metricType && (
                       <CaptureChip label={`${preview.metricType}${preview.metricValue !== undefined ? ` ${preview.metricValue}` : ''}`} />
                     )}
-                    {preview.entityType && <CaptureChip label={preview.entityType} icon={<User size={11} />} />}
+                    {preview.entityType && <CaptureChip label={translateText(preview.entityType, locale)} icon={<User size={11} />} />}
                     {preview.projectLabel && <CaptureChip label={preview.projectLabel} icon={<Target size={11} />} />}
                     {preview.priority && <CaptureChip label={preview.priority.toUpperCase()} />}
-                    {preview.dueDate && <CaptureChip label={formatISODate(preview.dueDate)} />}
+                    {preview.dueDate && <CaptureChip label={formatISODate(preview.dueDate, locale)} />}
                     {preview.tags.map((tag) => (
                       <CaptureChip key={tag} label={`#${tag}`} icon={<Tag size={11} />} />
                     ))}
@@ -351,7 +358,7 @@ export function QuickCapture() {
 
                   {!isOnline ? (
                     <p className="mt-2 text-2xs text-text-muted">
-                      This capture will be queued locally and synced once the app reconnects.
+                      {tx('This capture will be queued locally and synced once the app reconnects.')}
                     </p>
                   ) : null}
 
@@ -363,7 +370,7 @@ export function QuickCapture() {
                       disabled={isPending}
                       className="rounded-md bg-brand-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-brand-700 disabled:opacity-50"
                     >
-                      {isPending ? 'Saving…' : primaryLabel}
+                      {isPending ? tx('Saving…') : primaryLabel}
                     </button>
                     {preview.directCreateSupported && (
                       <button
@@ -373,7 +380,7 @@ export function QuickCapture() {
                         disabled={isPending}
                         className="rounded-md border border-surface-3 px-3 py-1.5 text-xs font-medium text-text-secondary transition-colors hover:bg-surface-2 disabled:opacity-50"
                       >
-                        {isOnline ? 'Inbox instead' : 'Queue for Inbox'}
+                        {isOnline ? tx('Inbox instead') : tx('Queue for Inbox')}
                       </button>
                     )}
                   </div>

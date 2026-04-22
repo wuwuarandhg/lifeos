@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Moon, Smile, Zap, Check, BarChart3 } from 'lucide-react';
 import { quickLogMetricsAction } from '@/app/actions';
 import { MOOD_LABELS, ENERGY_LABELS } from '@/lib/constants';
+import { useLocale } from '@/stores/locale-store';
 
 interface TodayMetric {
   metricType: string;
@@ -16,6 +17,7 @@ interface MetricQuickLogProps {
 }
 
 export function MetricQuickLog({ todayMetrics }: MetricQuickLogProps) {
+  const { tx } = useLocale();
   const [sleep, setSleep] = useState('');
   const [mood, setMood] = useState(0);
   const [energy, setEnergy] = useState(0);
@@ -47,10 +49,10 @@ export function MetricQuickLog({ todayMetrics }: MetricQuickLogProps) {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <BarChart3 size={16} className="text-text-muted" />
-            <h2 className="text-sm font-semibold text-text-primary">Life Signals</h2>
+            <h2 className="text-sm font-semibold text-text-primary">{tx('Life Signals')}</h2>
           </div>
           <Link href="/metrics" className="text-2xs text-brand-primary hover:underline">
-            View all →
+            {tx('View all →')}
           </Link>
         </div>
         <div className="grid grid-cols-3 gap-3">
@@ -58,21 +60,21 @@ export function MetricQuickLog({ todayMetrics }: MetricQuickLogProps) {
             <Moon size={14} className="text-indigo-400" />
             <div>
               <p className="text-xs font-medium text-text-primary">{existingSleep?.valueNumeric}h</p>
-              <p className="text-2xs text-text-muted">Sleep</p>
+              <p className="text-2xs text-text-muted">{tx('Sleep')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 rounded-lg bg-surface-2 p-2">
             <Smile size={14} className="text-amber-400" />
             <div>
               <p className="text-xs font-medium text-text-primary">{existingMood?.valueNumeric}/10</p>
-              <p className="text-2xs text-text-muted">Mood</p>
+              <p className="text-2xs text-text-muted">{tx('Mood')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 rounded-lg bg-surface-2 p-2">
             <Zap size={14} className="text-yellow-400" />
             <div>
               <p className="text-xs font-medium text-text-primary">{existingEnergy?.valueNumeric}/10</p>
-              <p className="text-2xs text-text-muted">Energy</p>
+              <p className="text-2xs text-text-muted">{tx('Energy')}</p>
             </div>
           </div>
         </div>
@@ -85,17 +87,17 @@ export function MetricQuickLog({ todayMetrics }: MetricQuickLogProps) {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <BarChart3 size={16} className="text-text-muted" />
-          <h2 className="text-sm font-semibold text-text-primary">Life Signals</h2>
+          <h2 className="text-sm font-semibold text-text-primary">{tx('Life Signals')}</h2>
         </div>
         <Link href="/metrics/log" className="text-2xs text-brand-primary hover:underline">
-          Full log →
+          {tx('Full log →')}
         </Link>
       </div>
 
       {saved ? (
         <div className="flex items-center justify-center gap-2 py-4 text-green-500">
           <Check size={18} />
-          <span className="text-sm font-medium">Saved!</span>
+          <span className="text-sm font-medium">{tx('Saved!')}</span>
         </div>
       ) : (
         <div className="space-y-3">
@@ -103,7 +105,7 @@ export function MetricQuickLog({ todayMetrics }: MetricQuickLogProps) {
           {!existingSleep && (
             <div className="flex items-center gap-3">
               <Moon size={16} className="text-indigo-400 flex-shrink-0" />
-              <label className="text-xs text-text-secondary w-12 flex-shrink-0">Sleep</label>
+                <label className="text-xs text-text-secondary w-12 flex-shrink-0">{tx('Sleep')}</label>
               <input
                 type="number"
                 step="0.5"
@@ -114,7 +116,7 @@ export function MetricQuickLog({ todayMetrics }: MetricQuickLogProps) {
                 placeholder="hrs"
                 className="w-20 rounded-lg border border-surface-3 bg-surface-1 px-2 py-1.5 text-sm text-text-primary text-center"
               />
-              <span className="text-2xs text-text-muted">hours</span>
+              <span className="text-2xs text-text-muted">{tx('hours')}</span>
             </div>
           )}
 
@@ -123,9 +125,9 @@ export function MetricQuickLog({ todayMetrics }: MetricQuickLogProps) {
             <div>
               <div className="flex items-center gap-3 mb-1.5">
                 <Smile size={16} className="text-amber-400 flex-shrink-0" />
-                <label className="text-xs text-text-secondary w-12 flex-shrink-0">Mood</label>
+                <label className="text-xs text-text-secondary w-12 flex-shrink-0">{tx('Mood')}</label>
                 <span className="text-xs text-text-muted">
-                  {mood > 0 ? `${mood} — ${MOOD_LABELS[mood] || ''}` : 'Select...'}
+                  {mood > 0 ? `${mood} — ${MOOD_LABELS[mood] || ''}` : tx('Select...')}
                 </span>
               </div>
               <div className="flex gap-1 ml-[76px]">
@@ -151,9 +153,9 @@ export function MetricQuickLog({ todayMetrics }: MetricQuickLogProps) {
             <div>
               <div className="flex items-center gap-3 mb-1.5">
                 <Zap size={16} className="text-yellow-400 flex-shrink-0" />
-                <label className="text-xs text-text-secondary w-12 flex-shrink-0">Energy</label>
+                <label className="text-xs text-text-secondary w-12 flex-shrink-0">{tx('Energy')}</label>
                 <span className="text-xs text-text-muted">
-                  {energy > 0 ? `${energy} — ${ENERGY_LABELS[energy] || ''}` : 'Select...'}
+                  {energy > 0 ? `${energy} — ${ENERGY_LABELS[energy] || ''}` : tx('Select...')}
                 </span>
               </div>
               <div className="flex gap-1 ml-[76px]">
@@ -179,7 +181,7 @@ export function MetricQuickLog({ todayMetrics }: MetricQuickLogProps) {
             disabled={submitting || (!sleep && mood === 0 && energy === 0)}
             className="w-full rounded-lg bg-brand-primary px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-hover disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {submitting ? 'Saving...' : 'Log Signals'}
+            {submitting ? tx('Saving...') : tx('Log Signals')}
           </button>
         </div>
       )}

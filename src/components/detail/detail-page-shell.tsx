@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft, Archive, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useState } from 'react';
+import { useLocale } from '@/stores/locale-store';
 
 interface DetailPageShellProps {
   backHref: string;
@@ -31,6 +32,7 @@ export function DetailPageShell({
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
   const [showMenu, setShowMenu] = useState(false);
+  const { tx } = useLocale();
 
   const handleTitleSave = () => {
     if (editTitle.trim() && editTitle !== title && onTitleChange) {
@@ -50,7 +52,7 @@ export function DetailPageShell({
           className="flex items-center gap-1.5 text-sm text-text-tertiary hover:text-text-primary transition-colors"
         >
           <ArrowLeft size={16} />
-          <span>{backLabel}</span>
+          <span>{tx(backLabel)}</span>
         </Link>
 
         <div className="flex items-center gap-2">
@@ -75,7 +77,7 @@ export function DetailPageShell({
                       className="flex w-full items-center gap-2 px-3 py-2 text-sm text-status-danger hover:bg-surface-1 transition-colors"
                     >
                       <Archive size={14} />
-                      Archive
+                      {tx('Archive')}
                     </button>
                   </div>
                 </>

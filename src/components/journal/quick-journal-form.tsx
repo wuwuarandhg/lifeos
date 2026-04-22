@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { createJournalAction } from '@/app/actions';
 import { cn } from '@/lib/cn';
+import { useLocale } from '@/stores/locale-store';
 
 export function QuickJournalForm() {
+  const { tx } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [body, setBody] = useState('');
@@ -34,7 +36,7 @@ export function QuickJournalForm() {
         onClick={() => setIsOpen(true)}
         className="w-full rounded-lg border border-surface-3 bg-surface-0 px-4 py-3 text-left text-sm text-text-muted hover:border-brand-300 transition-colors"
       >
-        What&apos;s on your mind? Write a journal entry...
+        {tx('What\'s on your mind? Write a journal entry...')}
       </button>
     );
   }
@@ -45,7 +47,7 @@ export function QuickJournalForm() {
         autoFocus
         value={body}
         onChange={(e) => setBody(e.target.value)}
-        placeholder="Write freely... Use markdown if you like."
+        placeholder={tx('Write freely... Use markdown if you like.')}
         rows={5}
         className="w-full resize-none rounded-md border border-surface-3 bg-surface-0 px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
       />
@@ -53,7 +55,7 @@ export function QuickJournalForm() {
       {/* Mood / Energy Row */}
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
-          <span className="text-2xs text-text-tertiary">Mood</span>
+          <span className="text-2xs text-text-tertiary">{tx('Mood')}</span>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((v) => (
               <button
@@ -73,7 +75,7 @@ export function QuickJournalForm() {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-2xs text-text-tertiary">Energy</span>
+          <span className="text-2xs text-text-tertiary">{tx('Energy')}</span>
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((v) => (
               <button
@@ -99,7 +101,7 @@ export function QuickJournalForm() {
           onClick={() => { setIsOpen(false); setBody(''); }}
           className="rounded-md px-3 py-1.5 text-sm text-text-secondary hover:bg-surface-2"
         >
-          Cancel
+          {tx('Cancel')}
         </button>
         <button
           onClick={handleSubmit}
@@ -109,7 +111,7 @@ export function QuickJournalForm() {
             'hover:bg-brand-700 disabled:opacity-50 transition-colors'
           )}
         >
-          {isSubmitting ? 'Saving...' : 'Save Entry'}
+          {isSubmitting ? tx('Saving...') : tx('Save Entry')}
         </button>
       </div>
     </div>

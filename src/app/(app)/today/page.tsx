@@ -11,6 +11,8 @@ import { HabitChecklist } from '@/components/habits/habit-checklist';
 import { MetricQuickLog } from '@/components/metrics/metric-quick-log';
 import { startOfWeek, endOfWeek } from '@/lib/utils';
 import { calculateLevel, xpForLevel } from '@/lib/constants';
+import { buildPageMetadata, getCurrentLocale } from '@/lib/locale-server';
+import { formatNumber, toIntlLocale, translateText } from '@/lib/i18n';
 import {
   Inbox, Flame, Zap, ClipboardList, Star,
   TrendingUp, TrendingDown, Minus, Activity,
@@ -18,11 +20,13 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-export const metadata = { title: 'Today — lifeOS' };
+export async function generateMetadata() {
+  return buildPageMetadata('Today');
+}
 
 export const dynamic = 'force-dynamic';
 
-function formatTodayHeader(): { dayName: string; fullDate: string; greeting: string } {
+function formatTodayHeader(locale: 'en' | 'zh-CN'): { dayName: string; fullDate: string; greeting: string } {
   const now = new Date();
   const hour = now.getHours();
 
@@ -30,14 +34,14 @@ function formatTodayHeader(): { dayName: string; fullDate: string; greeting: str
   if (hour < 12) greeting = 'Good morning';
   else if (hour < 17) greeting = 'Good afternoon';
 
-  const dayName = now.toLocaleDateString('en-US', { weekday: 'long' });
-  const fullDate = now.toLocaleDateString('en-US', {
+  const dayName = now.toLocaleDateString(toIntlLocale(locale), { weekday: 'long' });
+  const fullDate = now.toLocaleDateString(toIntlLocale(locale), {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
   });
 
-  return { dayName, fullDate, greeting };
+  return { dayName, fullDate, greeting: translateText(greeting, locale) };
 }
 
 function TrendIcon({ trend }: { trend: 'up' | 'down' | 'flat' }) {
@@ -46,8 +50,10 @@ function TrendIcon({ trend }: { trend: 'up' | 'down' | 'flat' }) {
   return <Minus size={14} className="text-text-muted" />;
 }
 
-export default function TodayPage() {
-  const { dayName, fullDate, greeting } = formatTodayHeader();
+export default async function TodayPage() {
+  const locale = await getCurrentLocale();
+  const tx = (text: string) => translateText(text, locale);
+  const { dayName, fullDate, greeting } = formatTodayHeader(locale);
   const todayTasks = getTodayTasks();
   const habits = getActiveHabits();
   const completions = getTodayCompletions();
@@ -92,7 +98,7 @@ export default function TodayPage() {
           </div>
           <div>
             <p className="text-lg font-semibold text-text-primary">{todayTasks.length}</p>
-            <p className="text-2xs text-text-tertiary">Tasks today</p>
+            <p className="text-2xs text-text-tertiary">{tx('Tasks today')}</p>
           </div>
         </div>
 
@@ -104,7 +110,7 @@ export default function TodayPage() {
             <p className="text-lg font-semibold text-text-primary">
               {habitsDone}/{habitsTotal}
             </p>
-            <p className="text-2xs text-text-tertiary">Habits done</p>
+            <p className="text-2xs text-text-tertiary">{tx('Habits done')}</p>
           </div>
         </div>
 
@@ -114,7 +120,7 @@ export default function TodayPage() {
           </div>
           <div>
             <p className="text-lg font-semibold text-text-primary">{inboxCount}</p>
-            <p className="text-2xs text-text-tertiary">In inbox</p>
+            <p className="text-2xs text-text-tertiary">{tx('In inbox')}</p>
           </div>
         </div>
       </div>
@@ -130,19 +136,19 @@ export default function TodayPage() {
               <Sparkles size={18} className="text-brand-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium text-text-primary">Welcome to lifeOS</p>
+              <p className="text-sm font-medium text-text-primary">{tx('Welcome to lifeOS')}</p>
               <p className="mt-0.5 text-xs text-text-tertiary">
-                Start by creating your first task, habit, or journal entry. The more you use lifeOS, the richer your insights become.
+                {tx('Start by creating your first task, habit, or journal entry. The more you use lifeOS, the richer your insights become.')}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <Link href="/tasks" className="rounded-md bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-secondary hover:bg-surface-3 transition-colors">
-                  Add a task →
+                  {tx('Add a task →')}
                 </Link>
                 <Link href="/habits" className="rounded-md bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-secondary hover:bg-surface-3 transition-colors">
-                  Set up habits →
+                  {locale === 'zh-CN' ? '设置习惯 →' : 'Set up habits →'}
                 </Link>
                 <Link href="/journal" className="rounded-md bg-surface-2 px-2.5 py-1 text-xs font-medium text-text-secondary hover:bg-surface-3 transition-colors">
-                  Write in journal →
+                  {locale === 'zh-CN' ? '写日志 →' : 'Write in journal →'}
                 </Link>
               </div>
             </div>
@@ -154,9 +160,9 @@ export default function TodayPage() {
       {!firstRun && (
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted">This Week</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-text-muted">{locale === 'zh-CN' ? '本周' : 'This Week'}</h2>
             <Link href="/insights" className="text-2xs text-text-muted hover:text-text-secondary transition-colors">
-              View all →
+              {locale === 'zh-CN' ? '查看全部 →' : 'View all →'}
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -169,8 +175,10 @@ export default function TodayPage() {
                 <p className="text-lg font-semibold text-text-primary">{weekly.habitRate}%</p>
                 <p className="text-2xs text-text-tertiary truncate">
                   {weekly.bestStreak
-                    ? `${weekly.bestStreak.name} · ${weekly.bestStreak.streak}d streak`
-                    : 'Habit completion'}
+                    ? locale === 'zh-CN'
+                      ? `${weekly.bestStreak.name} · 连续 ${weekly.bestStreak.streak} 天`
+                      : `${weekly.bestStreak.name} · ${weekly.bestStreak.streak}d streak`
+                    : locale === 'zh-CN' ? '习惯完成率' : 'Habit completion'}
                 </p>
               </div>
             </div>
@@ -185,7 +193,7 @@ export default function TodayPage() {
                   <p className="text-lg font-semibold text-text-primary">{weekly.tasksCompleted}</p>
                   <TrendIcon trend={weekly.taskCompletionTrend} />
                 </div>
-                <p className="text-2xs text-text-tertiary">Tasks done</p>
+                <p className="text-2xs text-text-tertiary">{locale === 'zh-CN' ? '已完成任务' : 'Tasks done'}</p>
               </div>
             </div>
 
@@ -205,7 +213,11 @@ export default function TodayPage() {
                     <span className="text-2xs text-text-muted">/ {weekly.avgEnergy}e</span>
                   )}
                 </div>
-                <p className="text-2xs text-text-tertiary">Avg mood{weekly.avgEnergy !== null ? ' · energy' : ''}</p>
+                <p className="text-2xs text-text-tertiary">
+                  {locale === 'zh-CN'
+                    ? `平均心情${weekly.avgEnergy !== null ? ' · 精力' : ''}`
+                    : `Avg mood${weekly.avgEnergy !== null ? ' · energy' : ''}`}
+                </p>
               </div>
             </div>
 
@@ -224,7 +236,7 @@ export default function TodayPage() {
                     </span>
                   )}
                 </div>
-                <p className="text-2xs text-text-tertiary">Active projects</p>
+                <p className="text-2xs text-text-tertiary">{locale === 'zh-CN' ? '活跃项目' : 'Active projects'}</p>
               </div>
             </div>
           </div>
@@ -243,8 +255,8 @@ export default function TodayPage() {
               <ClipboardList size={18} className="text-brand-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium text-text-primary">Weekly review due</p>
-              <p className="text-2xs text-text-tertiary">Reflect on your week →</p>
+              <p className="text-sm font-medium text-text-primary">{locale === 'zh-CN' ? '该做周复盘了' : 'Weekly review due'}</p>
+              <p className="text-2xs text-text-tertiary">{locale === 'zh-CN' ? '回顾这一周 →' : 'Reflect on your week →'}</p>
             </div>
           </Link>
         ) : (
@@ -256,9 +268,11 @@ export default function TodayPage() {
               <ClipboardList size={18} className="text-green-500" />
             </div>
             <div>
-              <p className="text-sm font-medium text-text-primary">Weekly review ready</p>
+              <p className="text-sm font-medium text-text-primary">{locale === 'zh-CN' ? '周复盘已就绪' : 'Weekly review ready'}</p>
               <p className="text-2xs text-text-tertiary">
-                {weeklyReview.isPublished ? 'Published' : 'Draft'} — view →
+                {locale === 'zh-CN'
+                  ? `${weeklyReview.isPublished ? '已发布' : '草稿'} · 查看 →`
+                  : `${weeklyReview.isPublished ? 'Published' : 'Draft'} — view →`}
               </p>
             </div>
           </Link>
@@ -271,8 +285,8 @@ export default function TodayPage() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-text-primary">Level {level}</p>
-              <p className="text-2xs text-text-muted">{profile.totalXp ?? 0} XP</p>
+              <p className="text-sm font-medium text-text-primary">{locale === 'zh-CN' ? `等级 ${level}` : `Level ${level}`}</p>
+              <p className="text-2xs text-text-muted">{formatNumber(profile.totalXp ?? 0, locale)} XP</p>
             </div>
             <div className="mt-1 h-1.5 w-full rounded-full bg-surface-3">
               <div
@@ -281,7 +295,9 @@ export default function TodayPage() {
               />
             </div>
             <p className="mt-0.5 text-2xs text-text-muted">
-              {xpProgress}/{xpNeeded} XP to level {level + 1}
+              {locale === 'zh-CN'
+                ? `${formatNumber(xpProgress, locale)}/${formatNumber(xpNeeded, locale)} XP 升至 ${level + 1} 级`
+                : `${xpProgress}/${xpNeeded} XP to level ${level + 1}`}
             </p>
           </div>
         </div>
@@ -292,20 +308,22 @@ export default function TodayPage() {
         {/* Tasks Section */}
         <div className="card">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-text-primary">Today&apos;s Tasks</h2>
+            <h2 className="text-sm font-semibold text-text-primary">{locale === 'zh-CN' ? '今日任务' : 'Today\'s Tasks'}</h2>
             <span className="text-2xs text-text-muted">
-              {todayTasks.filter(t => t.status === 'done').length}/{todayTasks.length} done
+              {locale === 'zh-CN'
+                ? `${todayTasks.filter(t => t.status === 'done').length}/${todayTasks.length} 已完成`
+                : `${todayTasks.filter(t => t.status === 'done').length}/${todayTasks.length} done`}
             </span>
           </div>
-          <TaskList tasks={todayTasks} showAddButton={true} emptyMessage="No tasks for today. Add one!" />
+          <TaskList tasks={todayTasks} showAddButton={true} emptyMessage={locale === 'zh-CN' ? '今天还没有任务，添加一个吧！' : 'No tasks for today. Add one!'} />
         </div>
 
         {/* Habits Section */}
         <div className="card">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-text-primary">Today&apos;s Habits</h2>
+            <h2 className="text-sm font-semibold text-text-primary">{locale === 'zh-CN' ? '今日习惯' : 'Today\'s Habits'}</h2>
             <span className="text-2xs text-text-muted">
-              {habitsDone}/{habitsTotal} complete
+              {locale === 'zh-CN' ? `${habitsDone}/${habitsTotal} 已完成` : `${habitsDone}/${habitsTotal} complete`}
             </span>
           </div>
           <HabitChecklist habits={habits} completions={completions} />

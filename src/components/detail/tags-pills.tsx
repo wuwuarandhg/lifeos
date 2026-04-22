@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { X, Plus } from 'lucide-react';
 import { addTagAction, removeTagAction } from '@/app/actions';
+import { useLocale } from '@/stores/locale-store';
 
 interface Tag {
   id: string;
@@ -20,6 +21,7 @@ interface TagsPillsProps {
 
 export function TagsPills({ itemType, itemId, tags }: TagsPillsProps) {
   const router = useRouter();
+  const { tx } = useLocale();
   const [isAdding, setIsAdding] = useState(false);
   const [tagInput, setTagInput] = useState('');
 
@@ -73,7 +75,7 @@ export function TagsPills({ itemType, itemId, tags }: TagsPillsProps) {
               setTagInput('');
             }
           }}
-          placeholder="Tag name..."
+          placeholder={tx('Tag name...')}
           className="rounded-full border border-brand-300 bg-surface-0 px-2.5 py-0.5 text-2xs outline-none focus:ring-1 focus:ring-brand-200 w-24"
         />
       ) : (
@@ -82,7 +84,7 @@ export function TagsPills({ itemType, itemId, tags }: TagsPillsProps) {
           className="inline-flex items-center gap-0.5 rounded-full border border-dashed border-surface-4 px-2 py-0.5 text-2xs text-text-muted hover:border-brand-300 hover:text-brand-600 transition-colors"
         >
           <Plus size={10} />
-          Tag
+          {tx('Tag')}
         </button>
       )}
     </div>

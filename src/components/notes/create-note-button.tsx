@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { createNoteAction } from '@/app/actions';
 import { Plus } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { useLocale } from '@/stores/locale-store';
 
 export function CreateNoteButton() {
+  const { tx } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -26,7 +28,7 @@ export function CreateNoteButton() {
         )}
       >
         <Plus size={16} />
-        New Note
+        {tx('New Note')}
       </button>
     );
   }
@@ -38,18 +40,18 @@ export function CreateNoteButton() {
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-md rounded-lg border border-surface-3 bg-surface-0 p-4 shadow-lg space-y-3"
       >
-        <h3 className="text-sm font-semibold text-text-primary">New Note</h3>
+        <h3 className="text-sm font-semibold text-text-primary">{tx('New Note')}</h3>
         <input
           autoFocus
           name="title"
           type="text"
           required
-          placeholder="Note title"
+          placeholder={tx('Note title')}
           className="w-full rounded-md border border-surface-3 bg-surface-0 px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
         <textarea
           name="body"
-          placeholder="Start writing... (markdown supported)"
+          placeholder={tx('Start writing... (markdown supported)')}
           rows={6}
           className="w-full resize-none rounded-md border border-surface-3 bg-surface-0 px-3 py-2 text-sm outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
         />
@@ -59,7 +61,7 @@ export function CreateNoteButton() {
             onClick={() => setIsOpen(false)}
             className="rounded-md px-3 py-1.5 text-sm text-text-secondary hover:bg-surface-2"
           >
-            Cancel
+            {tx('Cancel')}
           </button>
           <button
             type="submit"
@@ -69,7 +71,7 @@ export function CreateNoteButton() {
               'hover:bg-brand-700 disabled:opacity-50 transition-colors'
             )}
           >
-            {isSubmitting ? 'Creating...' : 'Create Note'}
+            {isSubmitting ? tx('Creating...') : tx('Create Note')}
           </button>
         </div>
       </form>

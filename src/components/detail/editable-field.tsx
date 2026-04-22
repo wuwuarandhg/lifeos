@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Pencil } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { useLocale } from '@/stores/locale-store';
 
 interface EditableFieldProps {
   label: string;
@@ -23,6 +24,7 @@ export function EditableField({
   placeholder,
   emptyLabel = 'Not set',
 }: EditableFieldProps) {
+  const { tx } = useLocale();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value ?? '');
   const selectedOption = useMemo(
@@ -47,8 +49,8 @@ export function EditableField({
   if (isEditing) {
     return (
       <div className="space-y-1">
-        <label className="text-2xs font-medium uppercase tracking-wider text-text-muted">
-          {label}
+          <label className="text-2xs font-medium uppercase tracking-wider text-text-muted">
+          {tx(label)}
         </label>
         {type === 'textarea' ? (
           <textarea
@@ -59,7 +61,7 @@ export function EditableField({
               if (e.key === 'Escape') handleCancel();
               if (e.key === 'Enter' && e.metaKey) handleSave();
             }}
-            placeholder={placeholder}
+            placeholder={placeholder ? tx(placeholder) : undefined}
             rows={4}
             className="w-full rounded-md border border-brand-300 bg-surface-0 px-3 py-2 text-sm text-text-primary outline-none focus:ring-2 focus:ring-brand-100 resize-y"
           />
@@ -92,7 +94,7 @@ export function EditableField({
               if (e.key === 'Enter') handleSave();
               if (e.key === 'Escape') handleCancel();
             }}
-            placeholder={placeholder}
+            placeholder={placeholder ? tx(placeholder) : undefined}
             className="w-full rounded-md border border-brand-300 bg-surface-0 px-3 py-2 text-sm text-text-primary outline-none focus:ring-2 focus:ring-brand-100"
           />
         )}
@@ -102,13 +104,13 @@ export function EditableField({
               onClick={handleSave}
               className="rounded-md bg-brand-600 px-3 py-1 text-2xs font-medium text-white hover:bg-brand-700 transition-colors"
             >
-              Save
+              {tx('Save')}
             </button>
             <button
               onClick={handleCancel}
               className="rounded-md px-3 py-1 text-2xs font-medium text-text-muted hover:bg-surface-2 transition-colors"
             >
-              Cancel
+              {tx('Cancel')}
             </button>
           </div>
         )}
@@ -123,7 +125,7 @@ export function EditableField({
     >
       <div className="flex items-center gap-1.5">
         <span className="text-2xs font-medium uppercase tracking-wider text-text-muted">
-          {label}
+          {tx(label)}
         </span>
         <Pencil
           size={10}
@@ -136,7 +138,7 @@ export function EditableField({
           value ? 'text-text-primary' : 'text-text-muted italic'
         )}
       >
-        {selectedOption?.label || value || emptyLabel}
+        {selectedOption?.label ? tx(selectedOption.label) : value || tx(emptyLabel)}
       </p>
     </div>
   );

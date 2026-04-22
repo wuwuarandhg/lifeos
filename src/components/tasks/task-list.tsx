@@ -7,6 +7,7 @@ import { toggleTaskAction, createTaskAction } from '@/app/actions';
 import { cn } from '@/lib/cn';
 import { PRIORITY_COLORS } from '@/lib/constants';
 import { formatISODate } from '@/lib/utils';
+import { useLocale } from '@/stores/locale-store';
 
 interface Task {
   id: string;
@@ -25,6 +26,7 @@ interface TaskListProps {
 }
 
 export function TaskList({ tasks, showAddButton = true, emptyMessage = 'No tasks' }: TaskListProps) {
+  const { locale, tx } = useLocale();
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
 
@@ -40,7 +42,7 @@ export function TaskList({ tasks, showAddButton = true, emptyMessage = 'No tasks
   return (
     <div className="space-y-0.5">
       {tasks.length === 0 && !isAdding && (
-        <p className="py-4 text-center text-sm text-text-muted">{emptyMessage}</p>
+        <p className="py-4 text-center text-sm text-text-muted">{tx(emptyMessage)}</p>
       )}
 
       {tasks.map((task) => (
@@ -63,7 +65,7 @@ export function TaskList({ tasks, showAddButton = true, emptyMessage = 'No tasks
               if (newTaskTitle.trim()) handleAddTask();
               else { setIsAdding(false); setNewTaskTitle(''); }
             }}
-            placeholder="Task title..."
+            placeholder={tx('Task title...')}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-text-muted"
           />
         </div>
@@ -75,7 +77,7 @@ export function TaskList({ tasks, showAddButton = true, emptyMessage = 'No tasks
           className="flex w-full items-center gap-2 rounded-md px-1 py-1.5 text-sm text-text-muted hover:text-text-secondary hover:bg-surface-1 transition-colors"
         >
           <span className="text-lg leading-none">+</span>
-          <span>Add task</span>
+          <span>{tx('Add task')}</span>
         </button>
       )}
     </div>
@@ -83,6 +85,7 @@ export function TaskList({ tasks, showAddButton = true, emptyMessage = 'No tasks
 }
 
 function TaskItem({ task }: { task: Task }) {
+  const { locale } = useLocale();
   const [isToggling, setIsToggling] = useState(false);
   const isDone = task.status === 'done';
 
@@ -130,7 +133,7 @@ function TaskItem({ task }: { task: Task }) {
           {task.dueDate && (
             <span className="text-2xs text-text-tertiary flex items-center gap-0.5">
               <Calendar size={12} />
-              {formatISODate(task.dueDate)}
+              {formatISODate(task.dueDate, locale)}
             </span>
           )}
         </div>

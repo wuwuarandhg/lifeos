@@ -1,4 +1,11 @@
 import { ulid } from 'ulid';
+import {
+  DEFAULT_LOCALE,
+  formatReadableDate,
+  formatReadableISODate,
+  formatRelativeDayLabel,
+  type AppLocale,
+} from '@/lib/i18n';
 
 /** Generate a new ULID — time-sortable unique ID */
 export function newId(): string {
@@ -26,23 +33,13 @@ export function toISODate(timestamp: number): string {
 }
 
 /** Format a unix ms timestamp to readable date string */
-export function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('en-US', {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+export function formatDate(timestamp: number, locale: AppLocale = DEFAULT_LOCALE): string {
+  return formatReadableDate(timestamp, locale);
 }
 
 /** Format ISO date string to readable */
-export function formatISODate(isoDate: string): string {
-  const date = new Date(isoDate + 'T00:00:00');
-  return date.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  });
+export function formatISODate(isoDate: string, locale: AppLocale = DEFAULT_LOCALE): string {
+  return formatReadableISODate(isoDate, locale);
 }
 
 /** Get the start of the week (Monday) for a given date */
@@ -64,19 +61,8 @@ export function endOfWeek(date: Date = new Date()): string {
 }
 
 /** Get relative day label */
-export function relativeDayLabel(isoDate: string): string {
-  const today = todayISO();
-  if (isoDate === today) return 'Today';
-
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  if (isoDate === yesterday.toISOString().split('T')[0]) return 'Yesterday';
-
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  if (isoDate === tomorrow.toISOString().split('T')[0]) return 'Tomorrow';
-
-  return formatISODate(isoDate);
+export function relativeDayLabel(isoDate: string, locale: AppLocale = DEFAULT_LOCALE): string {
+  return formatRelativeDayLabel(isoDate, locale);
 }
 
 /** Count words in a string */

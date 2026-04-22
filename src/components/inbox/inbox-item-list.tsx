@@ -17,6 +17,13 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { useLocale } from '@/stores/locale-store';
+import {
+  formatCreatedItems,
+  formatDismissedItems,
+  formatSelectedCount,
+  translateText,
+} from '@/lib/i18n';
 
 interface InboxItem {
   id: string;
@@ -28,6 +35,7 @@ interface InboxItem {
 }
 
 export function InboxItemList({ items }: { items: InboxItem[] }) {
+  const { locale, tx } = useLocale();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -46,18 +54,18 @@ export function InboxItemList({ items }: { items: InboxItem[] }) {
     startTransition(async () => {
       if (mode === 'dismiss') {
         const result = await triageInboxItemsAction(ids, 'dismiss');
-        setFeedback(`Dismissed ${result.dismissed} item${result.dismissed === 1 ? '' : 's'}.`);
+        setFeedback(formatDismissedItems(locale, result.dismissed));
       } else {
         const result = await triageInboxItemsAction(ids, mode);
         if (result.errors.length > 0) {
           setFeedback(result.errors[0]);
         } else {
-          setFeedback(`Created ${result.created} item${result.created === 1 ? '' : 's'}.`);
+          setFeedback(formatCreatedItems(locale, result.created));
         }
       }
       setSelectedIds(new Set());
     });
-  }, [isPending, selectedIds, startTransition]);
+  }, [isPending, locale, selectedIds, startTransition]);
 
   useEffect(() => {
     const validIds = new Set(items.map((item) => item.id));
@@ -135,7 +143,7 @@ export function InboxItemList({ items }: { items: InboxItem[] }) {
             disabled={isPending || items.length === 0}
             className="rounded-md border border-surface-3 px-2.5 py-1 text-2xs font-medium text-text-secondary transition-colors hover:bg-surface-2 disabled:opacity-50"
           >
-            {selectedIds.size === items.length && items.length > 0 ? 'Clear all' : 'Select all'} (A)
+            {(selectedIds.size === items.length && items.length > 0 ? tx('Clear all') : tx('Select all'))} (A)
           </button>
           <button
             type="button"
@@ -143,7 +151,7 @@ export function InboxItemList({ items }: { items: InboxItem[] }) {
             disabled={isPending || selectedIds.size === 0}
             className="rounded-md bg-brand-600 px-2.5 py-1 text-2xs font-medium text-white transition-colors hover:bg-brand-700 disabled:opacity-50"
           >
-            Apply suggested (Enter)
+            {tx('Apply suggested')} (Enter)
           </button>
           <button
             type="button"
@@ -151,7 +159,7 @@ export function InboxItemList({ items }: { items: InboxItem[] }) {
             disabled={isPending || selectedIds.size === 0}
             className="rounded-md border border-surface-3 px-2.5 py-1 text-2xs font-medium text-text-secondary transition-colors hover:bg-surface-2 disabled:opacity-50"
           >
-            As task (T)
+            {tx('As task')} (T)
           </button>
           <button
             type="button"
@@ -159,7 +167,7 @@ export function InboxItemList({ items }: { items: InboxItem[] }) {
             disabled={isPending || selectedIds.size === 0}
             className="rounded-md border border-surface-3 px-2.5 py-1 text-2xs font-medium text-text-secondary transition-colors hover:bg-surface-2 disabled:opacity-50"
           >
-            As note (N)
+            {tx('As note')} (N)
           </button>
           <button
             type="button"
@@ -167,10 +175,10 @@ export function InboxItemList({ items }: { items: InboxItem[] }) {
             disabled={isPending || selectedIds.size === 0}
             className="rounded-md border border-red-200 px-2.5 py-1 text-2xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
           >
-            Dismiss (D)
+            {tx('Dismiss')} (D)
           </button>
           <span className="ml-auto text-2xs text-text-muted">
-            {selectedIds.size > 0 ? `${selectedIds.size} selected` : 'Select items to triage in bulk'}
+            {selectedIds.size > 0 ? formatSelectedCount(locale, selectedIds.size) : tx('Select items to triage in bulk')}
           </span>
         </div>
         {feedback && (
@@ -187,6 +195,7 @@ export function InboxItemList({ items }: { items: InboxItem[] }) {
             disabled={isPending}
             onToggleSelected={() => toggleSelected(item.id)}
             onDismiss={() => runSingleDismiss(item.id)}
+            locale={locale}
           />
         ))}
       </div>
@@ -200,12 +209,14 @@ function InboxItemCard({
   disabled,
   onToggleSelected,
   onDismiss,
+  locale,
 }: {
   item: InboxItem;
   selected: boolean;
   disabled: boolean;
   onToggleSelected: () => void;
   onDismiss: () => void;
+  locale: 'en' | 'zh-CN';
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -241,11 +252,11 @@ function InboxItemCard({
         </div>
 
         <div className="mt-1 flex flex-wrap items-center gap-2 text-2xs text-text-muted">
-          <span>{formatDate(item.createdAt)}</span>
+          <span>{formatDate(item.createdAt, locale)}</span>
           <span className="rounded-full bg-surface-2 px-1.5 py-0.5">
-            suggested: {preview.suggestedType}
+            {locale === 'zh-CN' ? `建议：${translateText(preview.suggestedType, locale)}` : `suggested: ${preview.suggestedType}`}
           </span>
-          {preview.entityType && <span className="rounded-full bg-surface-2 px-1.5 py-0.5">{preview.entityType}</span>}
+          {preview.entityType && <span className="rounded-full bg-surface-2 px-1.5 py-0.5">{translateText(preview.entityType, locale)}</span>}
           {preview.metricType && (
             <span className="rounded-full bg-surface-2 px-1.5 py-0.5">
               {preview.metricType}{preview.metricValue !== undefined ? ` ${preview.metricValue}` : ''}
@@ -253,7 +264,7 @@ function InboxItemCard({
           )}
           {preview.projectLabel && <span className="rounded-full bg-surface-2 px-1.5 py-0.5">{preview.projectLabel}</span>}
           {preview.priority && <span className="rounded-full bg-surface-2 px-1.5 py-0.5">{preview.priority.toUpperCase()}</span>}
-          {preview.dueDate && <span className="rounded-full bg-surface-2 px-1.5 py-0.5">{formatISODate(preview.dueDate)}</span>}
+          {preview.dueDate && <span className="rounded-full bg-surface-2 px-1.5 py-0.5">{formatISODate(preview.dueDate, locale)}</span>}
           {preview.tags.map((tag) => (
             <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-1.5 py-0.5">
               <Tag size={10} />
@@ -283,7 +294,7 @@ function InboxItemCard({
           onClick={() => handleMaterialize('suggested')}
           disabled={busy || !preview.directCreateSupported}
           className="rounded-md p-1.5 text-text-muted transition-colors hover:bg-brand-50 hover:text-brand-600 disabled:opacity-30"
-          title="Apply suggested type"
+          title={translateText('Apply suggested type', locale)}
         >
           <ArrowRight size={16} />
         </button>
@@ -292,7 +303,7 @@ function InboxItemCard({
           onClick={() => handleMaterialize('task')}
           disabled={busy}
           className="rounded-md p-1.5 text-text-muted transition-colors hover:bg-blue-50 hover:text-blue-600"
-          title="Convert to task"
+          title={translateText('Convert to task', locale)}
         >
           <CheckSquare size={16} />
         </button>
@@ -301,7 +312,7 @@ function InboxItemCard({
           onClick={() => handleMaterialize('note')}
           disabled={busy}
           className="rounded-md p-1.5 text-text-muted transition-colors hover:bg-emerald-50 hover:text-emerald-600"
-          title="Convert to note"
+          title={translateText('Convert to note', locale)}
         >
           <StickyNote size={16} />
         </button>
@@ -310,7 +321,7 @@ function InboxItemCard({
           onClick={onDismiss}
           disabled={busy}
           className="rounded-md p-1.5 text-text-muted transition-colors hover:bg-red-50 hover:text-red-600"
-          title="Dismiss"
+          title={translateText('Dismiss', locale)}
         >
           <X size={16} />
         </button>

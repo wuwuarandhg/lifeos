@@ -3,25 +3,31 @@ import { getAllNotes } from '@/server/services/notes';
 import { CreateNoteButton } from '@/components/notes/create-note-button';
 import { formatDate } from '@/lib/utils';
 import { StickyNote } from 'lucide-react';
+import { buildPageMetadata, getCurrentLocale } from '@/lib/locale-server';
+import { translateText } from '@/lib/i18n';
 
-export const metadata = { title: 'Notes — lifeOS' };
+export async function generateMetadata() {
+  return buildPageMetadata('Notes');
+}
 export const dynamic = 'force-dynamic';
 
-export default function NotesPage() {
+export default async function NotesPage() {
+  const locale = await getCurrentLocale();
+  const tx = (text: string) => translateText(text, locale);
   const allNotes = getAllNotes();
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-text-primary">Notes</h1>
+        <h1 className="text-2xl font-semibold text-text-primary">{tx('Notes')}</h1>
         <CreateNoteButton />
       </div>
 
       {allNotes.length === 0 ? (
         <div className="card py-12 text-center">
           <StickyNote size={32} className="mx-auto text-text-muted mb-2" />
-          <p className="text-sm text-text-muted">No notes yet.</p>
-          <p className="text-2xs text-text-muted mt-1">Create your first note to get started.</p>
+          <p className="text-sm text-text-muted">{tx('No notes yet.')}</p>
+          <p className="text-2xs text-text-muted mt-1">{tx('Create your first note to get started.')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -41,7 +47,7 @@ export default function NotesPage() {
                     </span>
                   )}
                   <span className="text-2xs text-text-muted">
-                    {formatDate(note.updatedAt)}
+                    {formatDate(note.updatedAt, locale)}
                   </span>
                 </div>
               </div>

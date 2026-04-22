@@ -4,10 +4,12 @@ import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { loginAction } from '@/app/actions';
+import { useLocale } from '@/stores/locale-store';
 
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { tx } = useLocale();
   const [passphrase, setPassphrase] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState('');
@@ -26,7 +28,7 @@ export function LoginForm() {
         router.push(redirect);
         router.refresh();
       } else {
-        setError(result.error || 'Invalid passphrase');
+        setError(result.error ? tx(result.error) : tx('Invalid passphrase'));
         setPassphrase('');
       }
     });
@@ -36,7 +38,7 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label htmlFor="passphrase" className="sr-only">
-          Passphrase
+          {tx('Passphrase')}
         </label>
         <div className="relative">
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -47,7 +49,7 @@ export function LoginForm() {
             type={showPass ? 'text' : 'password'}
             value={passphrase}
             onChange={(e) => setPassphrase(e.target.value)}
-            placeholder="Enter passphrase"
+            placeholder={tx('Enter passphrase')}
             autoFocus
             autoComplete="current-password"
             disabled={isPending}
@@ -76,10 +78,10 @@ export function LoginForm() {
         {isPending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
-            Unlocking…
+            {tx('Unlocking…')}
           </>
         ) : (
-          'Unlock'
+          tx('Unlock')
         )}
       </button>
     </form>

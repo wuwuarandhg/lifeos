@@ -1,7 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 import { formatISODate } from '@/lib/utils';
 import { MOOD_LABELS } from '@/lib/constants';
 import { cn } from '@/lib/cn';
+import { useLocale } from '@/stores/locale-store';
 
 interface JournalEntry {
   id: string;
@@ -16,6 +19,7 @@ interface JournalEntry {
 }
 
 export function JournalEntryCard({ entry }: { entry: JournalEntry }) {
+  const { locale, tx } = useLocale();
   const preview = entry.body
     ? entry.body.length > 200
       ? entry.body.slice(0, 200) + '...'
@@ -31,10 +35,10 @@ export function JournalEntryCard({ entry }: { entry: JournalEntry }) {
             <h3 className="text-sm font-medium text-text-primary">{entry.title}</h3>
           )}
           <div className="flex items-center gap-2 text-2xs text-text-tertiary">
-            <span>{formatISODate(entry.entryDate)}</span>
-            {entry.entryTime && <span>at {entry.entryTime}</span>}
+            <span>{formatISODate(entry.entryDate, locale)}</span>
+            {entry.entryTime && <span>{locale === 'zh-CN' ? `${entry.entryTime}` : `at ${entry.entryTime}`}</span>}
             {entry.entryType && entry.entryType !== 'freeform' && (
-              <span className="badge bg-surface-2 text-text-tertiary">{entry.entryType}</span>
+              <span className="badge bg-surface-2 text-text-tertiary">{tx(entry.entryType)}</span>
             )}
           </div>
         </div>
@@ -42,7 +46,7 @@ export function JournalEntryCard({ entry }: { entry: JournalEntry }) {
         <div className="flex items-center gap-3">
           {entry.mood && (
             <div className="text-right">
-              <div className="text-2xs text-text-muted">Mood</div>
+              <div className="text-2xs text-text-muted">{tx('Mood')}</div>
               <div className={cn(
                 'text-sm font-semibold',
                 entry.mood >= 7 ? 'text-status-success' :
@@ -55,7 +59,7 @@ export function JournalEntryCard({ entry }: { entry: JournalEntry }) {
           )}
           {entry.energy && (
             <div className="text-right">
-              <div className="text-2xs text-text-muted">Energy</div>
+              <div className="text-2xs text-text-muted">{tx('Energy')}</div>
               <div className={cn(
                 'text-sm font-semibold',
                 entry.energy >= 7 ? 'text-status-success' :
@@ -77,7 +81,7 @@ export function JournalEntryCard({ entry }: { entry: JournalEntry }) {
 
       {entry.wordCount ? (
         <div className="mt-2 text-2xs text-text-muted">
-          {entry.wordCount} words
+          {entry.wordCount} {tx('words')}
         </div>
       ) : null}
       </div>

@@ -1,4 +1,8 @@
+'use client';
+
 import { cn } from '@/lib/cn';
+import { useLocale } from '@/stores/locale-store';
+import { translateText } from '@/lib/i18n';
 
 interface StatusBadgeProps {
   status: string;
@@ -90,8 +94,9 @@ export function StatusBadge({
   labelMap = DEFAULT_LABELS,
   size = 'sm',
 }: StatusBadgeProps) {
+  const { locale } = useLocale();
   const color = colorMap[status] ?? 'bg-surface-2 text-text-tertiary';
-  const label = labelMap[status] ?? status;
+  const label = translateText(labelMap[status] ?? status, locale);
 
   return (
     <span

@@ -4,10 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { LogOut, Loader2 } from 'lucide-react';
 import { logoutAction } from '@/app/actions';
+import { useLocale } from '@/stores/locale-store';
 
 export function LogoutButton() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const { tx } = useLocale();
 
   const handleLogout = () => {
     startTransition(async () => {
@@ -28,7 +30,7 @@ export function LogoutButton() {
       ) : (
         <LogOut className="h-3.5 w-3.5" />
       )}
-      Log out
+      {tx('Log out')}
     </button>
   );
 }
