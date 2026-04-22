@@ -1,12 +1,15 @@
 import fs from 'fs';
 import { NextResponse } from 'next/server';
-import { getAttachment, getAttachmentAbsolutePath } from '@/server/services/attachments';
 
 interface RouteProps {
   params: Promise<{ id: string }>;
 }
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(request: Request, { params }: RouteProps) {
+  const { getAttachment, getAttachmentAbsolutePath } = await import('@/server/services/attachments');
   const { id } = await params;
   const attachment = getAttachment(id);
 

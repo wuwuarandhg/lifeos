@@ -1,5 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { withTestContext } from '@/test/test-db';
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('search indexing', () => {
   it('keeps indexed task content in sync on create, update, and archive', async () => {
@@ -31,6 +35,9 @@ describe('search indexing', () => {
   });
 
   it('indexes relation context, tag context, milestone text, events, and generated reviews', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-20T10:00:00Z'));
+
     await withTestContext(async () => {
       const { createTask, toggleTask } = await import('./tasks');
       const { createNote } = await import('./notes');

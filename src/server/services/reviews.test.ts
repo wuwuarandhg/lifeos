@@ -1,5 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { withTestContext } from '@/test/test-db';
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('weekly reviews', () => {
   it('generates a weekly review from current data and reuses the existing draft', async () => {
@@ -49,6 +53,9 @@ describe('weekly reviews', () => {
   });
 
   it('generates daily, monthly, and yearly reviews from the same aggregation pipeline', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-20T10:00:00Z'));
+
     await withTestContext(async () => {
       const { createTask, updateTask } = await import('./tasks');
       const { createMetric } = await import('./metrics');
@@ -81,6 +88,9 @@ describe('weekly reviews', () => {
   });
 
   it('preserves authored user sections when a review is regenerated', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-20T10:00:00Z'));
+
     await withTestContext(async () => {
       const { createTask, updateTask } = await import('./tasks');
       const { generateReviewForPeriod, regenerateReview, updateReviewBody } = await import('./reviews');
