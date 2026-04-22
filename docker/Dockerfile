@@ -1,10 +1,12 @@
 FROM node:20-alpine AS base
+RUN apk add --no-cache libc6-compat
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # --- Dependencies ---
 FROM base AS deps
 WORKDIR /app
-COPY package.json pnpm-lock.yaml* ./
+RUN apk add --no-cache python3 make g++
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile || pnpm install
 
 # --- Build ---

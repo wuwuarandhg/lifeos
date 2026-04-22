@@ -1,6 +1,4 @@
 import { NextResponse } from 'next/server';
-import { createDBBackup } from '@/server/services/export';
-import { isAuthenticated } from '@/server/services/auth';
 import fs from 'fs';
 
 /**
@@ -8,7 +6,13 @@ import fs from 'fs';
  * Protected — requires valid session.
  * Creates a consistent backup using SQLite's backup API, then streams it.
  */
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET() {
+  const { isAuthenticated } = await import('@/server/services/auth');
+  const { createDBBackup } = await import('@/server/services/export');
+
   // Double-check auth
   const authed = await isAuthenticated();
   if (!authed) {

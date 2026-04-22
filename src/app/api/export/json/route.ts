@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server';
-import { exportFullJSON } from '@/server/services/export';
-import { isAuthenticated } from '@/server/services/auth';
 
 /**
  * Full JSON export endpoint.
  * Protected — requires valid session.
  * Returns a downloadable JSON file with all user data.
  */
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET() {
+  const { isAuthenticated } = await import('@/server/services/auth');
+  const { exportFullJSON } = await import('@/server/services/export');
+
   // Double-check auth (middleware should catch, but defense-in-depth)
   const authed = await isAuthenticated();
   if (!authed) {
