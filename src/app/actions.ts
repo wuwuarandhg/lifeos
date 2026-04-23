@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { createTask, updateTask, toggleTask, archiveTask } from '@/server/services/tasks';
 import { createHabit, updateHabit, toggleHabitCompletion, archiveHabit, getHabit } from '@/server/services/habits';
 import { createJournalEntry, updateJournalEntry, archiveJournalEntry } from '@/server/services/journal';
@@ -55,7 +56,10 @@ function revalidateItemDetailPath(itemType: ItemType, itemId: string) {
 // AUTH ACTIONS
 // ============================================================
 
-export async function loginAction(passphrase: string): Promise<{ success: boolean; error?: string }> {
+export async function loginAction(
+  passphrase: string,
+  redirectTo = '/today'
+): Promise<{ success: boolean; error?: string }> {
   if (!passphrase || passphrase.trim().length === 0) {
     return { success: false, error: 'Please enter a passphrase' };
   }
@@ -66,7 +70,7 @@ export async function loginAction(passphrase: string): Promise<{ success: boolea
   }
 
   await setSessionCookie();
-  return { success: true };
+  redirect(redirectTo);
 }
 
 export async function logoutAction(): Promise<void> {

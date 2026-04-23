@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Lock, Loader2, Eye, EyeOff } from 'lucide-react';
 import { loginAction } from '@/app/actions';
 import { useLocale } from '@/stores/locale-store';
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { tx } = useLocale();
   const [passphrase, setPassphrase] = useState('');
@@ -23,11 +22,8 @@ export function LoginForm() {
 
     setError('');
     startTransition(async () => {
-      const result = await loginAction(passphrase);
-      if (result.success) {
-        router.push(redirect);
-        router.refresh();
-      } else {
+      const result = await loginAction(passphrase, redirect);
+      if (result?.success === false) {
         setError(result.error ? tx(result.error) : tx('Invalid passphrase'));
         setPassphrase('');
       }
