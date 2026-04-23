@@ -33,6 +33,7 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/drizzle ./drizzle
+COPY --from=deps /app/node_modules ./node_modules
 COPY docker/migrate-runtime.js ./migrate-runtime.js
 COPY docker/entrypoint.sh ./entrypoint.sh
 
