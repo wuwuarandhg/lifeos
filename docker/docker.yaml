@@ -1,6 +1,6 @@
 services:
   lifeos:
-    image: ghcr.io/wuwuarandhg/lifeos:v1.0.4
+    image: ghcr.io/wuwuarandhg/lifeos:v1.0.6
     container_name: lifeos
     ports:
       - "${PORT:-8060}:8060"
