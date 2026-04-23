@@ -33,13 +33,16 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/drizzle ./drizzle
+COPY docker/migrate-runtime.js ./migrate-runtime.js
+COPY docker/entrypoint.sh ./entrypoint.sh
 
 # Create data directories
 RUN mkdir -p /app/data/attachments /app/data/backups && \
-    chown -R lifeos:nodejs /app/data
+    chown -R lifeos:nodejs /app/data && \
+    chmod +x /app/entrypoint.sh
 
 USER lifeos
 
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["./entrypoint.sh"]

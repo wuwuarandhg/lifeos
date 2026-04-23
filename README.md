@@ -60,6 +60,8 @@ cp .env.example .env
 docker compose up -d
 ```
 
+The container runs database migrations automatically on startup.
+
 Open [http://localhost:3000](http://localhost:3000) and enter your passphrase.
 
 ### Local Development
